@@ -1,3 +1,3 @@
-module github.com/novelgit/ansicolor
+module github.com/novelgitllc/ansicolor
 
 go 1.21
