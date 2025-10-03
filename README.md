@@ -12,13 +12,13 @@ This tiny library provides:
 Go modules:
 
 ```
-go get github.com/novelgit/ansicolor
+go get github.com/novelgitllc/ansicolor
 ```
 
 Import:
 
 ```
-import "github.com/novelgit/ansicolor"
+import "github.com/novelgitllc/ansicolor"
 ```
 
 ## Quick start
@@ -28,7 +28,7 @@ package main
 
 import (
     "fmt"
-    color "github.com/novelgit/ansicolor"
+    color "github.com/novelgitllc/ansicolor"
 )
 
 func main() {
