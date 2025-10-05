@@ -7,15 +7,17 @@ import (
 )
 
 func main() {
-	err := ansicolor.SetFgColor(ansicolor.FgBlack)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println("Hello World")
-	ansicolor.ResetFgColor()
-	err = ansicolor.Set(ansicolor.Black)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println("Hello World")
+	format := ansicolor.NewFormat()
+	fmt.Printf("%q\n", format.String())
+	formatted := format.WithForeground(ansicolor.FgRed).WithBackground(ansicolor.BgBrightWhite).WithOption(ansicolor.SGROptBold)
+	underlined := formatted.WithOption(ansicolor.SGROptUnderline)
+	reversed := formatted.WithOption(ansicolor.SGROptReverse)
+	formatted.Set()
+	fmt.Println("Hello, World!")
+	underlined.Set()
+	fmt.Println("Goodbye, World!")
+	reversed.Set()
+	fmt.Println("reversed colors...")
+	ansicolor.DefaultFormat()
+	fmt.Println("reset colors...")
 }

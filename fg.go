@@ -147,7 +147,7 @@ func AddFgColor(color FgColor, s string, reset bool) (string, error) {
 	b.WriteString(color.String())
 	b.WriteString(s)
 	if reset {
-		b.WriteString(ResetColor.String())
+		b.WriteString(FgDefault.String())
 	}
 	return b.String(), nil
 }

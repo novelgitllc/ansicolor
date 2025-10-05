@@ -27,6 +27,8 @@ const (
 	SGRRemoveStrike
 )
 
+const SGRClearStringShort = "22;23;24;25;27;28;29"
+
 // String returns the string representation of SGRClearer, including formatting codes if the value is valid.
 func (s SGRClearer) String() string {
 	if !s.IsValid() {

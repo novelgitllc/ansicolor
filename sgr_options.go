@@ -1,5 +1,9 @@
 package ansicolor
 
+import (
+	"strings"
+)
+
 // SGROption represents a set of options using bit flags for SGR (Select Graphic Rendition) attributes.
 type SGROption uint16
 
@@ -52,6 +56,71 @@ func (s *SGROption) Toggle(options SGROption) {
 }
 
 func (s *SGROption) String() string {
-	// Needs SGR implementation to tranlate to ANSI escape codes
-	panic("implement me")
+	if *s == 0 {
+		return ""
+	}
+	var b strings.Builder
+	for opt, setter := range SGROptSetterLookup {
+		if s.Has(opt) {
+			b.WriteString(setter.Short())
+			b.WriteString(";")
+		}
+	}
+	str := b.String()
+	if len(str) > 0 {
+		str = str[:len(str)-1]
+	}
+	return str
+}
+
+func (s *SGROption) ClearString() string {
+	if *s == 0 {
+		return ""
+	}
+	var b strings.Builder
+	for opt, clearer := range SGROptClearerLookup {
+		if s.Has(opt) {
+			b.WriteString(clearer.Short())
+			b.WriteString(";")
+		}
+	}
+	str := b.String()
+	if len(str) > 0 {
+		str = str[:len(str)-1]
+	}
+	return str
+}
+
+// MOptSetterLookup maps SGROption values to their corresponding SGRSetter implementations for terminal text formatting.
+type MOptSetterLookup map[SGROption]SGRSetter
+
+// SGROptSetterLookup maps SGROptions to their respective SGRSetters for applying text style transformations.
+var SGROptSetterLookup = MOptSetterLookup{
+	SGROptBold:            SGRBold,
+	SGROptFaint:           SGRFaint,
+	SGROptItalic:          SGRItalic,
+	SGROptUnderline:       SGRUnderline,
+	SGROptBlink:           SGRBlink,
+	SGROptFastBlink:       SGRFastBlink,
+	SGROptReverse:         SGRReverse,
+	SGROptConceal:         SGRConceal,
+	SGROptStrike:          SGRStrike,
+	SGROptDoubleUnderline: SGRDoubleUnderline,
+}
+
+// MOptClearerLookup maps SGROption values to their corresponding clearing SGRClearer codes for SGR attribute management.
+type MOptClearerLookup map[SGROption]SGRClearer
+
+// SGROptClearerLookup maps SGROptions to their corresponding SGRClearer values for resetting specific text styles.
+var SGROptClearerLookup = MOptClearerLookup{
+	SGROptBold:            SGRRemoveIntensity,
+	SGROptFaint:           SGRRemoveIntensity,
+	SGROptItalic:          SGRRemoveItalic,
+	SGROptUnderline:       SGRRemoveUnderline,
+	SGROptBlink:           SGRRemoveBlink,
+	SGROptFastBlink:       SGRRemoveBlink,
+	SGROptReverse:         SGRRemoveReverse,
+	SGROptConceal:         SGRRemoveConceal,
+	SGROptStrike:          SGRRemoveStrike,
+	SGROptDoubleUnderline: SGRRemoveUnderline,
 }
