@@ -1,93 +1,144 @@
 # ansicolor
 
-Human-friendly constants and helpers for working with ANSI color escape codes in Go.
+[![Go Reference](https://pkg.go.dev/badge/github.com/novelgitllc/ansicolor.svg)](https://pkg.go.dev/github.com/novelgitllc/ansicolor)
+[![Go Report Card](https://goreportcard.com/badge/github.com/novelgitllc/ansicolor)](https://goreportcard.com/report/github.com/novelgitllc/ansicolor)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-This tiny library provides:
-- Named constants for common ANSI colors (foreground and background), including bright variants.
-- A lookup map to get a Color by its string name.
-- Convenience utilities to set/reset colors in strings and to strip color codes.
+A Go library for terminal ANSI color and text formatting with a type-safe, immutable API.
 
 ## Installation
 
-Go modules:
-
-```
+```bash
 go get github.com/novelgitllc/ansicolor
 ```
 
-Import:
+## Usage
 
-```
-import "github.com/novelgitllc/ansicolor"
-```
+The primary interface is the `Format` type, which uses a builder pattern for composing colors and text styles.
 
-## Quick start
+### Basic Example
 
 ```go
 package main
 
 import (
     "fmt"
-    color "github.com/novelgitllc/ansicolor"
+    "github.com/novelgitllc/ansicolor"
 )
 
 func main() {
-    // Use constants directly
-    fmt.Print(color.BrightBlue) // starts bright blue
-    fmt.Println("Hello, world!")
-    fmt.Print(color.Reset())    // reset to default
-
-    // Wrap a string and optionally reset
-    s := color.Set(color.Red, "danger", true)
-    fmt.Println(s) // prints red "danger" then resets
-
-    // Remove color codes
-    plain := color.Clear(s)
-    fmt.Println(plain) // "danger"
-
-    // Lookup by name (case-sensitive)
-    if c, err := color.ColorLookup.GetColorFromString("YellowBackground"); err == nil {
-        fmt.Println(color.Set(c, "warning", true))
-    }
+    // Create a format with red foreground, bright white background, and bold text
+    format := ansicolor.NewFormat().
+        WithForeground(ansicolor.FgRed).
+        WithBackground(ansicolor.BgBrightWhite).
+        WithOption(ansicolor.SGROptBold)
+    
+    // Apply formatting and print
+    format.Set()
+    fmt.Println("Hello, World!")
+    
+    // Reset to defaults
+    ansicolor.Reset()
 }
 ```
 
-## API overview
+### Immutable Composition
 
-- Type
-  - Color: string alias representing an ANSI escape code.
+Each `With*()` method returns a new `Format` instance, leaving the original unchanged:
 
-- Constants (selection)
-  - Foreground: Black, Red, Green, Yellow, Blue, Magenta, Cyan, White, Default, BrightBlack, BrightRed, BrightGreen, BrightYellow, BrightBlue, BrightMagenta, BrightCyan
-  - Background: BlackBackground, RedBackground, GreenBackground, YellowBackground, BlueBackground, MagentaBackground, CyanBackground, WhiteBackground, DefaultBackground, BrightBlackBackground, BrightRedBackground, BrightGreenBackground, BrightYellowBackground, BrightBlueBackground, BrightMagentaBackground, BrightCyanBackground
-  - Special: ResetColor
+```go
+// Create base format
+base := ansicolor.NewFormat().
+    WithForeground(ansicolor.FgRed).
+    WithOption(ansicolor.SGROptBold)
 
-- Lookup
-  - ColorLookup: map[string]Color with keys matching the constant names above (e.g., "Red", "YellowBackground", "BrightBlue").
-  - (MColorLookup) GetColorFromString(name string) (Color, error)
-    - Returns ResetColor with ErrColorEmpty if name is empty.
-    - Returns ResetColor with ErrColorNotFound if name is not present.
+// Create variations
+underlined := base.WithOption(ansicolor.SGROptUnderline)
+reversed := base.WithOption(ansicolor.SGROptReverse)
 
-- Utilities
-  - (Color) String() string: returns the raw ANSI sequence.
-  - Set(color Color, s string, reset bool) string: prefixes s with color; appends ResetColor if reset is true.
-  - Clear(s string) string: strips any known color codes.
-  - Reset() string: returns the ANSI reset sequence (same as ResetColor.String()).
+// Apply each independently
+underlined.Set()
+fmt.Println("Goodbye, World!")
 
-## Notes
-
-- Lookup is case-sensitive; use the exact constant name (e.g., "Red", not "red").
-- The constants in this library include the bold/bright attribute (e.g., "\u001b[1;31m" for Red). Behavior may vary depending on your terminal settings.
-- Clear removes codes that are known to the library (those present in ColorLookup).
-
-## Testing
-
-Run the tests with:
-
+reversed.Set()
+fmt.Println("reversed colors")
 ```
-go test ./...
+
+### Text Wrapping
+
+Use `Wrap()` to apply formatting to specific text:
+
+```go
+format := ansicolor.NewFormat().
+    WithForeground(ansicolor.FgGreen).
+    WithOption(ansicolor.SGROptBold)
+
+// Wrap text with automatic reset
+text := "You can also " + format.Wrap("wrap", true) + " text."
+fmt.Println(text)
 ```
+
+### Selective Clearing
+
+```go
+// Clear only text styles, keeping colors
+ansicolor.ClearStyles()
+
+// Clear only colors, keeping text styles  
+ansicolor.ClearColor()
+
+// Clear all formatting
+ansicolor.ClearAll()
+
+// Reset everything to the default format
+ansicolor.Reset()
+```
+
+## API Reference
+
+### Colors
+
+**Foreground Colors:**
+- Standard: `FgBlack`, `FgRed`, `FgGreen`, `FgYellow`, `FgBlue`, `FgMagenta`, `FgCyan`, `FgWhite`
+- Bright: `FgBrightBlack`, `FgBrightRed`, `FgBrightGreen`, `FgBrightYellow`, `FgBrightBlue`, `FgBrightMagenta`, `FgBrightCyan`, `FgBrightWhite`
+- Default: `FgDefault`
+
+**Background Colors:**
+- Standard: `BgBlack`, `BgRed`, `BgGreen`, `BgYellow`, `BgBlue`, `BgMagenta`, `BgCyan`, `BgWhite`
+- Bright: `BgBrightBlack`, `BgBrightRed`, `BgBrightGreen`, `BgBrightYellow`, `BgBrightBlue`, `BgBrightMagenta`, `BgBrightCyan`, `BgBrightWhite`
+- Default: `BgDefault`
+
+### Text Styles
+
+- `SGROptBold` - Bold text
+- `SGROptFaint` - Faint/dim text
+- `SGROptItalic` - Italic text
+- `SGROptUnderline` - Underlined text
+- `SGROptBlink` - Blinking text
+- `SGROptFastBlink` - Fast blinking text
+- `SGROptReverse` - Reverse video
+- `SGROptConceal` - Hidden text
+- `SGROptStrike` - Strikethrough text
+- `SGROptDoubleUnderline` - Double underlined text
+
+### Format Methods
+
+- `NewFormat()` - Create new Format instance
+- `WithForeground(FgColor)` - Set foreground color
+- `WithBackground(BgColor)` - Set background color
+- `WithOption(SGROption)` - Add text style option
+- `Set()` - Apply format to terminal
+- `String()` - Get ANSI escape sequence
+- `Wrap(string, bool)` - Wrap text with formatting
+- `Reset()` - Reset format to defaults
+
+### Global Functions
+
+- `Reset()` - Reset terminal to default format
+- `ClearColor()` - Clear foreground and background colors
+- `ClearStyles()` - Clear text formatting styles
+- `ClearAll()` - Reset all formatting
 
 ## License
 
-MIT License. See LICENSE for details.
+MIT License - see the [LICENSE](LICENSE) file for details.
