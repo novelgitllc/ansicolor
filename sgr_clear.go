@@ -1,9 +1,7 @@
 package ansicolor
 
 import (
-	"fmt"
 	"strconv"
-	"strings"
 )
 
 // SGRClearer represents a Select Graphic Rendition (SGR) code for resetting terminal text formatting attributes.
@@ -56,15 +54,6 @@ func (s SGRClearer) Name() string {
 // IsValid checks if the SGRClearer value is within the valid range of [22-25] or [27-29].
 func (s SGRClearer) IsValid() bool {
 	return s >= 22 && s <= 25 || s >= 27 && s <= 29
-}
-
-// ClearAllSGRs constructs and prints the ANSI escape sequence to reset all text formatting attributes in the terminal.
-func ClearAllSGRs() {
-	var b strings.Builder
-	b.WriteString(StartFormat)
-	b.WriteString(SGRClearStringShort)
-	b.WriteString(EndFormat)
-	fmt.Print(b.String())
 }
 
 // MSGRClearerNameLookup maps SGRClearer values to their respective string descriptions for easy lookup.
