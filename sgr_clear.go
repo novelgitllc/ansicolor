@@ -62,16 +62,9 @@ func (s SGRClearer) IsValid() bool {
 func ClearAllSGRs() {
 	var b strings.Builder
 	b.WriteString(StartFormat)
-	cnt := 0
-	for c, _ := range SGRClearerNameLookup {
-		b.WriteString(c.Short())
-		if cnt < len(SGRClearerNameLookup)-1 {
-			b.WriteString(";")
-			cnt++
-		}
-	}
+	b.WriteString(SGRClearStringShort)
 	b.WriteString(EndFormat)
-	fmt.Println(b.String())
+	fmt.Print(b.String())
 }
 
 // MSGRClearerNameLookup maps SGRClearer values to their respective string descriptions for easy lookup.

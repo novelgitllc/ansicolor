@@ -149,7 +149,7 @@ func (f *Format) Wrap(s string, reset bool) string {
 	b.WriteString(f.String())
 	b.WriteString(s)
 	if reset {
-		b.WriteString(ResetColor.String())
+		b.WriteString(ResetAll)
 	}
 	return b.String()
 }

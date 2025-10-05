@@ -18,6 +18,6 @@ func main() {
 	fmt.Println("Goodbye, World!")
 	reversed.Set()
 	fmt.Println("reversed colors...")
-	ansicolor.DefaultFormat()
-	fmt.Println("reset colors...")
+	ansicolor.ClearAllSGRs()
+	fmt.Println("reset styles...")
 }
